@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/tieto-cem/terraform-aws-ecs-task-definition.svg?style=shield&circle-token=ac9c8f6c689ae8b53f292f2847feb2feb92cc4b8)](https://circleci.com/gh/tieto-cem/terraform-aws-ecs-container-instance)
+[![CircleCI](https://circleci.com/gh/tieto-cem/terraform-aws-ecs-task-definition.svg?style=shield&circle-token=549ec46ff06d26b4c86715e054bc03ac7f152533)](https://circleci.com/gh/tieto-cem/terraform-aws-ecs-task-definition)
 
 AWS ECS Task Definition Terraform module
 ===========================================
