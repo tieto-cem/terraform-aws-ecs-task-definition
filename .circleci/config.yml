@@ -11,9 +11,17 @@ jobs:
             wget -O /tmp/tflint.zip https://github.com/wata727/tflint/releases/download/v0.5.4/tflint_linux_amd64.zip
             unzip /tmp/tflint.zip -d /usr/local/bin
       - run:
-          name: Test example
+          name: Test Task Definition example
           command: |
             cd example
+            terraform init
+            terraform validate
+            tflint
+            terraform plan
+      - run:
+          name: Test Container Definition example
+          command: |
+            cd modules/container-definition
             terraform init
             terraform validate
             tflint

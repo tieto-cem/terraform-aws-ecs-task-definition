@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 module "container_definition_a" {
-  source         = "../modules/container_definition"
+  source         = "../modules/container-definition"
   name           = "hello-a"
   image          = "tutum/hello-world"
   mem_soft_limit = 256
@@ -14,7 +14,7 @@ module "container_definition_a" {
 }
 
 module "container_definition_b" {
-  source         = "../modules/container_definition"
+  source         = "../modules/container-definition"
   name           = "hello-b"
   image          = "tutum/hello-world"
   mem_soft_limit = 256

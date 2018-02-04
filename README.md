@@ -11,7 +11,7 @@ Usage
 ```hcl
 
 module "container_definition" {
-  source         = "github.com/tieto-cem/terraform-aws-ecs-task-definition//modules/container_definition?ref=v0.1.0"
+  source         = "github.com/tieto-cem/terraform-aws-ecs-task-definition//modules/container-definition?ref=v0.1.0"
   name           = "hello"
   image          = "tutum/hello-world"
   mem_soft_limit = 256
