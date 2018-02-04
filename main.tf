@@ -1,5 +1,14 @@
+
+data "aws_region" "current" {
+  current = true
+}
+
+#---------------------------------------
+#  Role for the task definition - policies passed using var.role_policies are attached to this role
+#---------------------------------------
+
 resource "aws_iam_role" "task_role" {
-  name               = "${var.task_name}-role"
+  name               = "${var.name}-task-role"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -17,49 +26,38 @@ resource "aws_iam_role" "task_role" {
 EOF
 }
 
+
 resource "aws_iam_role_policy_attachment" "task_role_policy_attachments" {
-  count      = "${length(var.task_role_policies)}"
+  count      = "${length(var.role_policies)}"
   role       = "${aws_iam_role.task_role.id}"
-  policy_arn = "${element(var.task_role_policies, count.index)}"
+  policy_arn = "${element(var.role_policies, count.index)}"
 }
 
-resource "aws_cloudwatch_log_group" "container_logs" {
-  name = "${var.task_name}-task-logs"
+#----------------------
+# CloudWatch Log Group for storing task's container logs
+#-------------------------
+
+resource "aws_cloudwatch_log_group" "task_log_group" {
+  name = "/ecs/task/${var.name}"
 }
 
-data "aws_region" "current" {
-  current = true
+#----------------------
+# Task Definition
+#----------------------
+
+# value of awslogs-group attribute is replaced with the log group name created in this module
+
+locals {
+  container_defs_json = "[${join(",", var.container_definitions)}]"
+  log_group_matcher = "/\"awslogs-group\":\\s*\"[^\"\\n\\r]*\"/"
+  match_replacement = "\"awslogs-group\": \"${aws_cloudwatch_log_group.task_log_group.name}\""
+  patched_json = "${replace(local.container_defs_json, local.log_group_matcher, local.match_replacement)}"
 }
 
 resource "aws_ecs_task_definition" "task_definition" {
-  family                   = "${var.container_name}-task-definition"
+  family                   = "${var.name}"
   task_role_arn            = "${aws_iam_role.task_role.arn}"
   network_mode             = "${var.network_mode}"
   requires_compatibilities = ["EC2"]
-  container_definitions    = <<EOF
-[
-  {
-    "name": "${var.container_name}",
-    "image": "${var.image}",
-    ${var.memory_hard_limit == 0 ? "" : "\"memory\": ${var.memory_hard_limit},"}
-    ${var.memory_soft_limit == 0 ? "" : "\"memoryReservation\": ${var.memory_soft_limit},"}
-    "portMappings": ${replace(jsonencode(var.port_mappings), "/\"(?P<port>\\d+)\"/", "$port")},
-    ${var.cpu == "" ? "" : "\"cpu\": ${var.cpu},"}
-    "essential": ${var.essential ? true : false},
-    "entryPoint": ${jsonencode(var.entryPoint)},
-    "command": ${jsonencode(var.command)},
-    "environment": ${jsonencode(var.environment)},
-    "links": ${jsonencode(var.links)},
-    "logConfiguration": {
-      "logDriver": "awslogs",
-      "options": {
-        "awslogs-group": "${aws_cloudwatch_log_group.container_logs.name}",
-        "awslogs-region": "${data.aws_region.current.name}",
-        "awslogs-stream-prefix": "${var.container_name}-container"
-      }
-    },
-    "privileged": ${var.privileged ? true : false}
-  }
-]
-EOF
+  container_definitions    = "${local.patched_json}"
 }
