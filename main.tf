@@ -1,8 +1,4 @@
 
-data "aws_region" "current" {
-  current = true
-}
-
 #---------------------------------------
 #  Role for the task definition - policies passed using var.role_policies are attached to this role
 #---------------------------------------
