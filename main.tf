@@ -1,6 +1,6 @@
 
 #---------------------------------------
-#  Role for the task definition - policies passed using var.role_policies are attached to this role
+#  Role for the task definition
 #---------------------------------------
 
 resource "aws_iam_role" "task_role" {
@@ -20,13 +20,6 @@ resource "aws_iam_role" "task_role" {
   ]
 }
 EOF
-}
-
-
-resource "aws_iam_role_policy_attachment" "task_role_policy_attachments" {
-  count      = "${length(var.role_policies)}"
-  role       = "${aws_iam_role.task_role.id}"
-  policy_arn = "${element(var.role_policies, count.index)}"
 }
 
 #----------------------

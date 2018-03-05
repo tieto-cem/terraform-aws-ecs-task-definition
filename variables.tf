@@ -13,10 +13,4 @@ variable "network_mode" {
   default = "bridge"
 }
 
-variable "role_policies" {
-  description = "List of IAM policy ARNs to associate with task role"
-  type = "list"
-  default = []
-}
-
 
